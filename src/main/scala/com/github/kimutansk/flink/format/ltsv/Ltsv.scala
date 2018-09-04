@@ -48,32 +48,35 @@ object Ltsv {
 case class LtsvConf(driveSchema: Boolean = false, failOnMissingField: Boolean = false, schema: String = "")
 
 /**
+  * Ltsv format descryptor
   *
-  * @param conf
+  * @param conf Configuration
   */
 class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, version = 1) {
 
   /**
+    * Create driveSchema=true configured Ltsv format descryptor.
     *
-    * @return
+    * @return Ltsv format descryptor
     */
   def driveSchema(): Ltsv = {
     Ltsv(LtsvConf(true, conf.failOnMissingField, conf.schema))
   }
 
   /**
+    * Create failOnMissingField=true configured Ltsv format descryptor.
     *
-    * @return
+    * @return Ltsv format descryptor
     */
   def failOnMissingField(): Ltsv = {
     Ltsv(LtsvConf(conf.driveSchema, true, conf.schema))
   }
 
   /**
+    * Create schemaType configured Ltsv format descryptor.
     *
-    *
-    * @param schema
-    * @return
+    * @param schemaType TypeInformation to configure.
+    * @return Ltsv format descryptor
     */
   def schema(schemaType: TypeInformation[Row]): Ltsv = {
     Preconditions.checkNotNull(schemaType)
@@ -81,10 +84,10 @@ class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, vers
   }
 
   /**
+    * Create schema configured Ltsv format descryptor.
     *
-    *
-    * @param schema
-    * @return
+    * @param schema schema to configure.
+    * @return Ltsv format descryptor
     */
   def schema(schema: String): Ltsv = {
     Preconditions.checkNotNull(schema)
