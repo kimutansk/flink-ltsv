@@ -27,7 +27,10 @@ object Ltsv {
   /** flink-ltsv common constants */
   val FORMAT_TYPE_VALUE = "ltsv"
   val FORMAT_SCHEMA = "format.schema"
+  val FORMAT_TIMESTAMP_FORMAT = "format.timestamp-format"
   val FORMAT_FAIL_ON_MISSING_FIELD = "format.fail-on-missing-field"
+
+  val DEFAULT_TIMESTAMP_FORMAT = ""
 
   /**
     * Create Ltsv format descryptor with default configs.

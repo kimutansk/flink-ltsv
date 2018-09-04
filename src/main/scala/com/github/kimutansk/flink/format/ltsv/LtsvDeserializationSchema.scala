@@ -22,9 +22,11 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.types.Row
 
 class LtsvDeserializationSchema extends DeserializationSchema[Row] {
+
+
   override def deserialize(message: Array[Byte]): Row = ???
 
-  override def isEndOfStream(nextElement: Row): Boolean = ???
+  override def isEndOfStream(nextElement: Row): Boolean = false
 
   override def getProducedType: TypeInformation[Row] = ???
 }

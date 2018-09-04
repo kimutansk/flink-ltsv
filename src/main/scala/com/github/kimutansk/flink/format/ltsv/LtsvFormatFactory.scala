@@ -19,18 +19,33 @@ package com.github.kimutansk.flink.format.ltsv
 
 import java.util
 
+import collection.JavaConverters._
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
+import org.apache.flink.table.descriptors.{FormatDescriptorValidator, SchemaValidator}
 import org.apache.flink.table.factories.{DeserializationSchemaFactory, SerializationSchemaFactory}
 import org.apache.flink.types.Row
 
+import scala.collection.JavaConverters
+
+object LtsvFormatFactory {
+  val REQURED_CONTEXT: Map[String, String] = Map(FormatDescriptorValidator.FORMAT_TYPE -> Ltsv.FORMAT_TYPE_VALUE, FormatDescriptorValidator.FORMAT_PROPERTY_VERSION -> "1")
+  val SUPPORTED_PROPERTIES: Seq[String] = List.concat(Seq(Ltsv.FORMAT_SCHEMA, Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA),
+    JavaConverters.asScalaIteratorConverter(SchemaValidator.getSchemaDerivationKeys.iterator()).asScala.toSeq)
+}
+
 class LtsvFormatFactory extends SerializationSchemaFactory[Row] with DeserializationSchemaFactory[Row] {
+
+  override def requiredContext(): util.Map[String, String] = {
+    LtsvFormatFactory.REQURED_CONTEXT.asJava
+  }
+
+  override def supportedProperties(): util.List[String] = {
+    LtsvFormatFactory.SUPPORTED_PROPERTIES.asJava
+  }
+
+  override def supportsSchemaDerivation(): Boolean = true
+
   override def createSerializationSchema(properties: util.Map[String, String]): SerializationSchema[Row] = ???
 
   override def createDeserializationSchema(properties: util.Map[String, String]): DeserializationSchema[Row] = ???
-
-  override def supportsSchemaDerivation(): Boolean = ???
-
-  override def supportedProperties(): util.List[String] = ???
-
-  override def requiredContext(): util.Map[String, String] = ???
 }
