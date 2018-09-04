@@ -17,8 +17,25 @@
 
 package com.github.kimutansk.flink.format.ltsv
 
-import org.apache.flink.table.descriptors.FormatDescriptorValidator
+import org.apache.flink.table.api.ValidationException
+import org.apache.flink.table.descriptors.{DescriptorProperties, FormatDescriptorValidator}
 
+/**
+  * Ltsv Descriptor properties validator.
+  */
 class LtsvDescriptorValidator extends FormatDescriptorValidator {
 
+  override def validate(properties: DescriptorProperties): Unit = {
+    super.validate(properties)
+    properties.validateBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA, true)
+    val deriveSchema = properties.getOptionalBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA).orElse(false)
+    val hasSchema = properties.containsKey(Ltsv.FORMAT_SCHEMA)
+    if (deriveSchema && hasSchema) {
+      throw new ValidationException(
+        "Format cannot define a schema and derive from the table's schema at the same time.")
+    } else {
+      properties.validateString(Ltsv.FORMAT_SCHEMA, false, 1)
+    }
+    properties.validateBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, true)
+  }
 }
