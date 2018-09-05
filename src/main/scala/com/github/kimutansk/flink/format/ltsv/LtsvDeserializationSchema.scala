@@ -17,15 +17,34 @@
 
 package com.github.kimutansk.flink.format.ltsv
 
+import java.time.format.DateTimeFormatter
+
 import org.apache.flink.api.common.serialization.DeserializationSchema
 import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.api.java.typeutils.RowTypeInfo
 import org.apache.flink.types.Row
 import org.apache.flink.util.Preconditions
 
 object LtsvDeserializationSchema {
   def apply(typeInfo: TypeInformation[Row], failOnMissingField: Boolean, timestampFormat: String): LtsvDeserializationSchema = {
     Preconditions.checkNotNull(typeInfo)
-    new LtsvDeserializationSchema(typeInfo, failOnMissingField, timestampFormat)
+    new LtsvDeserializationSchema(typeInfo.asInstanceOf[RowTypeInfo], failOnMissingField, timestampFormat)
+  }
+
+  /**
+    * Parse ltsv line to String maps.
+    *
+    * @param line ltsv line
+    * @return result map
+    */
+  def parseLtsvLine(line: String): Map[String, String] = {
+    val columns = line.split("\t", -1)
+    columns.flatMap { column =>
+      column.split(":", 2) match {
+        case Array(key, value) => Some(key -> value)
+        case _ => None
+      }
+    }.toMap
   }
 }
 
@@ -36,7 +55,9 @@ object LtsvDeserializationSchema {
   *
   * <p>Failure during deserialization are forwarded as wrapped IOExceptions.
   */
-class LtsvDeserializationSchema(typeInfo: TypeInformation[Row], failOnMissingField: Boolean, timestampFormat: String) extends DeserializationSchema[Row] {
+class LtsvDeserializationSchema(typeInfo: RowTypeInfo, failOnMissingField: Boolean, timestampFormat: String) extends DeserializationSchema[Row] {
+
+  private lazy val timestampFormatter = DateTimeFormatter.ofPattern(timestampFormat)
 
   override def deserialize(message: Array[Byte]): Row = ???
 

@@ -18,6 +18,7 @@
 package com.github.kimutansk.flink.format.ltsv
 
 import java.nio.charset.StandardCharsets
+import java.sql.{Time, Timestamp}
 import java.time.format.DateTimeFormatter
 
 import org.apache.flink.api.common.serialization.SerializationSchema
@@ -30,7 +31,7 @@ import org.apache.flink.util.Preconditions
 object LtsvSerializationSchema {
   def apply(typeInfo: TypeInformation[Row], timestampFormat: String): LtsvSerializationSchema = {
     Preconditions.checkNotNull(typeInfo)
-    new LtsvSerializationSchema(typeInfo, timestampFormat)
+    new LtsvSerializationSchema(typeInfo.asInstanceOf[RowTypeInfo], timestampFormat)
   }
 }
 
@@ -41,9 +42,7 @@ object LtsvSerializationSchema {
   *
   * <p>Result <code>byte[]</code> messages can be deserialized using LtsvDeserializationSchema.
   */
-class LtsvSerializationSchema(typeInfo: TypeInformation[Row], timestampFormat: String) extends SerializationSchema[Row] {
-
-  private lazy val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+class LtsvSerializationSchema(typeInfo: RowTypeInfo, timestampFormat: String) extends SerializationSchema[Row] {
 
   private lazy val timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME
 
@@ -61,10 +60,8 @@ class LtsvSerializationSchema(typeInfo: TypeInformation[Row], timestampFormat: S
     * @return Ltsv string
     */
   def convertRowToLtsvString(row: Row): String = {
-    val rowTypeInfo = typeInfo.asInstanceOf[RowTypeInfo]
-
-    val fieldNames = rowTypeInfo.getFieldNames
-    val fieldTypes = rowTypeInfo.getFieldTypes
+    val fieldNames = typeInfo.getFieldNames
+    val fieldTypes = typeInfo.getFieldTypes
     val fieldNum = fieldNames.length
     if (row.getArity != fieldNum) {
       throw new IllegalStateException(s"Number of elements in the row $row is different from number of field names: $fieldNum")
@@ -84,13 +81,10 @@ class LtsvSerializationSchema(typeInfo: TypeInformation[Row], timestampFormat: S
     * @return column value string
     */
   def convertColumnToLtsvString(fieldTypeInfo: TypeInformation[_], column: AnyRef): String = {
-    match fieldTypeInfo {
-      case Types.SQL_DATE => {
-        ""
-      }
+    fieldTypeInfo match {
+      case Types.SQL_TIME => timeFormatter.format(column.asInstanceOf[Time].toInstant)
+      case Types.SQL_TIMESTAMP => timestampFormatter.format(column.asInstanceOf[Timestamp].toInstant)
+      case _ => column.toString
     }
-
-    ""
-    column.toString
   }
 }
