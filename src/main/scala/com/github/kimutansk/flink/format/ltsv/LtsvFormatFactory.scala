@@ -21,7 +21,8 @@ import java.util
 
 import collection.JavaConverters._
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
-import org.apache.flink.table.descriptors.{FormatDescriptorValidator, SchemaValidator}
+import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.table.descriptors.{DescriptorProperties, FormatDescriptorValidator, SchemaValidator}
 import org.apache.flink.table.factories.{DeserializationSchemaFactory, SerializationSchemaFactory}
 import org.apache.flink.types.Row
 
@@ -29,10 +30,41 @@ import scala.collection.JavaConverters
 
 object LtsvFormatFactory {
   val REQURED_CONTEXT: Map[String, String] = Map(FormatDescriptorValidator.FORMAT_TYPE -> Ltsv.FORMAT_TYPE_VALUE, FormatDescriptorValidator.FORMAT_PROPERTY_VERSION -> "1")
-  val SUPPORTED_PROPERTIES: Seq[String] = List.concat(Seq(Ltsv.FORMAT_SCHEMA, Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA),
+  val SUPPORTED_PROPERTIES: Seq[String] = List.concat(Seq(Ltsv.FORMAT_SCHEMA, Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA, Ltsv.FORMAT_TIMESTAMP_FORMAT),
     JavaConverters.asScalaIteratorConverter(SchemaValidator.getSchemaDerivationKeys.iterator()).asScala.toSeq)
+
+  /**
+    * Convert string properties to DescriptorProperties.
+    *
+    * @param properties string properties
+    * @return DescriptorProperties
+    */
+  def convertToDescriptorProperties(properties: Map[String, String]): DescriptorProperties = {
+    val descriptorProperties = new DescriptorProperties(true)
+    descriptorProperties.putProperties(properties.asJava)
+
+    new LtsvDescriptorValidator().validate(descriptorProperties)
+    descriptorProperties
+  }
+
+  /**
+    * Create TypeInformation from DescriptorProperties.
+    *
+    * @param descriptorProperties Target DescriptorProperties.
+    * @return TypeInformation
+    */
+  def createTypeInformation(descriptorProperties: DescriptorProperties): TypeInformation[Row] = {
+    if (descriptorProperties.containsKey(Ltsv.FORMAT_SCHEMA)) {
+      descriptorProperties.getType(Ltsv.FORMAT_SCHEMA).asInstanceOf[TypeInformation[Row]]
+    } else {
+      SchemaValidator.deriveFormatFields(descriptorProperties).toRowType
+    }
+  }
 }
 
+/**
+  * Table format factory for providing configured instances of Ltsv-to-row SerializationSchema and DeserializationSchema.
+  */
 class LtsvFormatFactory extends SerializationSchemaFactory[Row] with DeserializationSchemaFactory[Row] {
 
   override def requiredContext(): util.Map[String, String] = {
@@ -45,7 +77,15 @@ class LtsvFormatFactory extends SerializationSchemaFactory[Row] with Deserializa
 
   override def supportsSchemaDerivation(): Boolean = true
 
-  override def createSerializationSchema(properties: util.Map[String, String]): SerializationSchema[Row] = ???
+  override def createSerializationSchema(properties: util.Map[String, String]): SerializationSchema[Row] = {
+    val descriptorProperties = LtsvFormatFactory.convertToDescriptorProperties(properties.asScala.toMap)
+    val typeInfo = LtsvFormatFactory.createTypeInformation(descriptorProperties)
+    LtsvSerializationSchema(typeInfo, descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT))
+  }
 
-  override def createDeserializationSchema(properties: util.Map[String, String]): DeserializationSchema[Row] = ???
+  override def createDeserializationSchema(properties: util.Map[String, String]): DeserializationSchema[Row] = {
+    val descriptorProperties = LtsvFormatFactory.convertToDescriptorProperties(properties.asScala.toMap)
+    val typeInfo = LtsvFormatFactory.createTypeInformation(descriptorProperties)
+    LtsvDeserializationSchema(typeInfo, descriptorProperties.getBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD), descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT))
+  }
 }

@@ -20,13 +20,27 @@ package com.github.kimutansk.flink.format.ltsv
 import org.apache.flink.api.common.serialization.DeserializationSchema
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.types.Row
+import org.apache.flink.util.Preconditions
 
-class LtsvDeserializationSchema extends DeserializationSchema[Row] {
+object LtsvDeserializationSchema {
+  def apply(typeInfo: TypeInformation[Row], failOnMissingField: Boolean, timestampFormat: String): LtsvDeserializationSchema = {
+    Preconditions.checkNotNull(typeInfo)
+    new LtsvDeserializationSchema(typeInfo, failOnMissingField, timestampFormat)
+  }
+}
 
+/**
+  * Deserialization schema from Ltsv to Flink types.
+  *
+  * <p>Deserializes a <code>byte[]</code> message as a Ltsv object and reads the specified fields.
+  *
+  * <p>Failure during deserialization are forwarded as wrapped IOExceptions.
+  */
+class LtsvDeserializationSchema(typeInfo: TypeInformation[Row], failOnMissingField: Boolean, timestampFormat: String) extends DeserializationSchema[Row] {
 
   override def deserialize(message: Array[Byte]): Row = ???
 
   override def isEndOfStream(nextElement: Row): Boolean = false
 
-  override def getProducedType: TypeInformation[Row] = ???
+  override def getProducedType: TypeInformation[Row] = typeInfo
 }

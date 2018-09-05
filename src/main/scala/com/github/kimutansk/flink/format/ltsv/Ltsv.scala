@@ -29,7 +29,6 @@ object Ltsv {
   val FORMAT_SCHEMA = "format.schema"
   val FORMAT_TIMESTAMP_FORMAT = "format.timestamp-format"
   val FORMAT_FAIL_ON_MISSING_FIELD = "format.fail-on-missing-field"
-
   val DEFAULT_TIMESTAMP_FORMAT = ""
 
   /**
@@ -37,7 +36,7 @@ object Ltsv {
     *
     * @return Ltsv format descryptor
     */
-  def apply(): Ltsv = Ltsv(LtsvConf())
+  def apply(): Ltsv = new Ltsv(LtsvConf())
 
   /**
     * Create Ltsv format descryptor with specified configs.
@@ -45,10 +44,10 @@ object Ltsv {
     * @param conf Config
     * @return Ltsv format descryptor
     */
-  def apply(conf: LtsvConf): Ltsv = Ltsv(conf)
+  def apply(conf: LtsvConf): Ltsv = new Ltsv(conf)
 }
 
-case class LtsvConf(driveSchema: Boolean = false, failOnMissingField: Boolean = false, schema: String = "")
+case class LtsvConf(driveSchema: Boolean = false, failOnMissingField: Boolean = false, schema: String = "", timestampFormat: String = Ltsv.DEFAULT_TIMESTAMP_FORMAT)
 
 /**
   * Ltsv format descryptor
@@ -63,7 +62,7 @@ class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, vers
     * @return Ltsv format descryptor
     */
   def driveSchema(): Ltsv = {
-    Ltsv(LtsvConf(true, conf.failOnMissingField, conf.schema))
+    Ltsv(LtsvConf(driveSchema = true, conf.failOnMissingField, conf.schema, conf.timestampFormat))
   }
 
   /**
@@ -72,7 +71,7 @@ class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, vers
     * @return Ltsv format descryptor
     */
   def failOnMissingField(): Ltsv = {
-    Ltsv(LtsvConf(conf.driveSchema, true, conf.schema))
+    Ltsv(LtsvConf(conf.driveSchema, failOnMissingField = true, conf.schema, conf.timestampFormat))
   }
 
   /**
@@ -83,7 +82,7 @@ class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, vers
     */
   def schema(schemaType: TypeInformation[Row]): Ltsv = {
     Preconditions.checkNotNull(schemaType)
-    Ltsv(LtsvConf(conf.driveSchema, conf.failOnMissingField, TypeStringUtils.writeTypeInfo(schemaType)))
+    Ltsv(LtsvConf(conf.driveSchema, conf.failOnMissingField, TypeStringUtils.writeTypeInfo(schemaType), conf.timestampFormat))
   }
 
   /**
@@ -94,12 +93,24 @@ class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, vers
     */
   def schema(schema: String): Ltsv = {
     Preconditions.checkNotNull(schema)
-    Ltsv(LtsvConf(conf.driveSchema, conf.failOnMissingField, schema))
+    Ltsv(LtsvConf(conf.driveSchema, conf.failOnMissingField, schema, conf.timestampFormat))
+  }
+
+  /**
+    * Create timestampFormat configured Ltsv format descryptor.
+    *
+    * @param timestampFormat timestampFormat to configure.
+    * @return Ltsv format descryptor
+    */
+  def timestampFormat(timestampFormat: String): Ltsv = {
+    Preconditions.checkNotNull(timestampFormat)
+    Ltsv(LtsvConf(conf.driveSchema, conf.failOnMissingField, conf.schema, timestampFormat))
   }
 
   override protected def addFormatProperties(properties: DescriptorProperties): Unit = {
     properties.putBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA, conf.driveSchema)
     properties.putBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, conf.failOnMissingField)
     properties.putString(Ltsv.FORMAT_SCHEMA, conf.schema)
+    properties.putString(Ltsv.FORMAT_TIMESTAMP_FORMAT, conf.timestampFormat)
   }
 }
