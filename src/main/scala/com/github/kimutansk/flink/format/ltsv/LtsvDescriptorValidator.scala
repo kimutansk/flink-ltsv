@@ -35,6 +35,6 @@ class LtsvDescriptorValidator extends FormatDescriptorValidator {
       properties.validateString(Ltsv.FORMAT_SCHEMA, isOptional = false, 1)
     }
     properties.validateBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, isOptional = true)
-    properties.validateString(Ltsv.FORMAT_TIMESTAMP_FORMAT, isOptional = false, 1)
+    properties.validateString(Ltsv.FORMAT_TIMESTAMP_FORMAT, isOptional = true, 1)
   }
 }

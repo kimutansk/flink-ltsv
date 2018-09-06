@@ -29,7 +29,7 @@ object Ltsv {
   val FORMAT_SCHEMA = "format.schema"
   val FORMAT_TIMESTAMP_FORMAT = "format.timestamp-format"
   val FORMAT_FAIL_ON_MISSING_FIELD = "format.fail-on-missing-field"
-  val DEFAULT_TIMESTAMP_FORMAT = ""
+  val DEFAULT_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX"
 
   /**
     * Create Ltsv format descryptor with default configs.
@@ -45,6 +45,18 @@ object Ltsv {
     * @return Ltsv format descryptor
     */
   def apply(conf: LtsvConf): Ltsv = new Ltsv(conf)
+
+  /**
+    *
+    * @param conf
+    * @param properties
+    */
+  def addFormatProperties(conf: LtsvConf, properties: DescriptorProperties): Unit = {
+    properties.putBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA, conf.driveSchema)
+    properties.putBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, conf.failOnMissingField)
+    properties.putString(Ltsv.FORMAT_SCHEMA, conf.schema)
+    properties.putString(Ltsv.FORMAT_TIMESTAMP_FORMAT, conf.timestampFormat)
+  }
 }
 
 case class LtsvConf(driveSchema: Boolean = false, failOnMissingField: Boolean = false, schema: String = "", timestampFormat: String = Ltsv.DEFAULT_TIMESTAMP_FORMAT)

@@ -80,12 +80,14 @@ class LtsvFormatFactory extends SerializationSchemaFactory[Row] with Deserializa
   override def createSerializationSchema(properties: util.Map[String, String]): SerializationSchema[Row] = {
     val descriptorProperties = LtsvFormatFactory.convertToDescriptorProperties(properties.asScala.toMap)
     val typeInfo = LtsvFormatFactory.createTypeInformation(descriptorProperties)
-    LtsvSerializationSchema(typeInfo, descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT))
+    LtsvSerializationSchema(typeInfo, descriptorProperties.getOptionalString(Ltsv.FORMAT_TIMESTAMP_FORMAT).orElse(Ltsv.DEFAULT_TIMESTAMP_FORMAT))
   }
 
   override def createDeserializationSchema(properties: util.Map[String, String]): DeserializationSchema[Row] = {
     val descriptorProperties = LtsvFormatFactory.convertToDescriptorProperties(properties.asScala.toMap)
     val typeInfo = LtsvFormatFactory.createTypeInformation(descriptorProperties)
-    LtsvDeserializationSchema(typeInfo, descriptorProperties.getBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD), descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT))
+    LtsvDeserializationSchema(typeInfo,
+      descriptorProperties.getOptionalBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD).orElse(false),
+      descriptorProperties.getOptionalString(Ltsv.FORMAT_TIMESTAMP_FORMAT).orElse(Ltsv.DEFAULT_TIMESTAMP_FORMAT))
   }
 }
