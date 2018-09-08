@@ -97,9 +97,7 @@ class LtsvDeserializationSchema(typeInfo: RowTypeInfo, failOnMissingField: Boole
         case Types.LONG => columnMap.getOrElse(f._1, "0").toLong
         case Types.FLOAT => columnMap.getOrElse(f._1, "0.0").toFloat
         case Types.DOUBLE => columnMap.getOrElse(f._1, "0.0").toDouble
-        case Types.CHAR => columnMap.getOrElse(f._1, "0").toCharArray.head
         case Types.BIG_DEC => new java.math.BigDecimal(columnMap.getOrElse(f._1, "0.0"))
-        case Types.BIG_INT => new java.math.BigInteger(columnMap.getOrElse(f._1, "0"))
         case Types.SQL_DATE => Date.valueOf(columnMap.getOrElse(f._1, ""))
         case Types.SQL_TIME => Time.valueOf(columnMap.getOrElse(f._1, ""))
         case Types.SQL_TIMESTAMP => Timestamp.from(Instant.from(timestampFormatter.parse(columnMap.getOrElse(f._1, ""))))

@@ -4,10 +4,11 @@ name := "flink-ltsv"
 
 // Follow Flink's scala version
 scalaVersion := "2.11.12"
+val flinkVersion = "1.6.0"
+version:= "0.1.0_flink" + flinkVersion
 
 resolvers += "Maven Central" at "http://central.maven.org/"
 
-val flinkVersion = "1.6.0"
 libraryDependencies ++= Seq(
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-table" % flinkVersion % "provided",
@@ -15,7 +16,7 @@ libraryDependencies ++= Seq(
 )
 
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
-assemblyOutputPath in assembly := file(s"target/${name.value}.jar")
+assemblyOutputPath in assembly := file(s"target/${name.value}-${version.value}-sql.jar")
 assemblyMergeStrategy in assembly := {
   case PathList("org", "apache", xs @ _*) => MergeStrategy.last
   case x if x.endsWith("io.netty.versions.properties") => MergeStrategy.first

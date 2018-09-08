@@ -19,6 +19,7 @@ package com.github.kimutansk.flink.format.ltsv
 
 import java.nio.charset.StandardCharsets
 import java.sql.{Time, Timestamp}
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 import org.apache.flink.api.common.serialization.SerializationSchema
@@ -82,8 +83,8 @@ class LtsvSerializationSchema(typeInfo: RowTypeInfo, timestampFormat: String) ex
     */
   def convertColumnToLtsvString(fieldTypeInfo: TypeInformation[_], column: AnyRef): String = {
     fieldTypeInfo match {
-      case Types.SQL_TIME => timeFormatter.format(column.asInstanceOf[Time].toInstant)
-      case Types.SQL_TIMESTAMP => timestampFormatter.format(column.asInstanceOf[Timestamp].toInstant)
+      case Types.SQL_TIME => timeFormatter.format(column.asInstanceOf[Time].toLocalTime)
+      case Types.SQL_TIMESTAMP => timestampFormatter.format(column.asInstanceOf[Timestamp].toLocalDateTime.atZone(ZoneId.systemDefault()))
       case _ => column.toString
     }
   }

@@ -29,9 +29,11 @@ class LtsvDescriptorValidator extends FormatDescriptorValidator {
     super.validate(properties)
     properties.validateBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA, isOptional = true)
     val deriveSchema = properties.getOptionalBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA).orElse(false)
-    val hasSchema = properties.containsKey(Ltsv.FORMAT_SCHEMA)
-    if (deriveSchema && hasSchema) throw new ValidationException(
-      "Format cannot define a schema and derive from the table's schema at the same time.") else {
+    val hasSchema = !properties.getOptionalString(Ltsv.FORMAT_SCHEMA).orElse("").isEmpty
+    if (deriveSchema && hasSchema) {
+      throw new ValidationException(
+        "Format cannot define a schema and derive from the table's schema at the same time.")
+    } else if (!deriveSchema) {
       properties.validateString(Ltsv.FORMAT_SCHEMA, isOptional = false, 1)
     }
     properties.validateBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, isOptional = true)

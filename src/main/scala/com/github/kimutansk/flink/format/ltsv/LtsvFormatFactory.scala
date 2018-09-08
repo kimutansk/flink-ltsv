@@ -54,7 +54,7 @@ object LtsvFormatFactory {
     * @return TypeInformation
     */
   def createTypeInformation(descriptorProperties: DescriptorProperties): TypeInformation[Row] = {
-    if (descriptorProperties.containsKey(Ltsv.FORMAT_SCHEMA)) {
+    if (!descriptorProperties.getOptionalString(Ltsv.FORMAT_SCHEMA).orElse("").isEmpty) {
       descriptorProperties.getType(Ltsv.FORMAT_SCHEMA).asInstanceOf[TypeInformation[Row]]
     } else {
       SchemaValidator.deriveFormatFields(descriptorProperties).toRowType
