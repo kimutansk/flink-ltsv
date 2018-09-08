@@ -2,6 +2,10 @@
 
 [Ltsv(Labeled Tab-separated Values)](http://ltsv.org/) format for [Apache Flink](https://flink.apache.org/).
 
+## Required
+
+- flink1.6.0
+
 ## Dependency
 
 ```
