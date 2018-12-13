@@ -37,7 +37,7 @@ class LtsvSerializationSchemaSpec extends FlatSpec with Matchers {
   "serialize" should "serialized base pattern" in {
     // prepare
     val f = fixture
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(a INT, b FLOAT, c TIME, d TIMESTAMP)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<a INT, b FLOAT, c TIME, d TIMESTAMP>")
     val serializationSchema = f.factory.createSerializationSchema(f.descriptorProperties.asMap)
     val input = Row.of(Integer.valueOf("1"),java.lang.Float.valueOf("1.1"),Time.valueOf("19:38:01"), Timestamp.valueOf("2018-08-28 19:38:01"))
 

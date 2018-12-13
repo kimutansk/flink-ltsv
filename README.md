@@ -4,13 +4,22 @@
 
 ## Required
 
-- flink1.6.0
+- flink1.6.0 or later
 
 ## Dependency
+
+- For flink1.6.X
 
 ```
 resolvers += "jitpack" at "https://jitpack.io"
 libraryDependencies += "com.github.kimutansk" % "flink-ltsv" % "0.1.0-flink1.6.0"
+```
+
+- For flink1.7.0
+
+```
+resolvers += "jitpack" at "https://jitpack.io"
+libraryDependencies += "com.github.kimutansk" % "flink-ltsv" % "0.1.1-flink1.7.0"
 ```
 
 ## Configuration
@@ -32,13 +41,13 @@ So programmatically usage is now experimental.
 ```
 format:
   type: ltsv
-  schema: "ROW(lon FLOAT, rideTime TIMESTAMP)"
+  schema: "ROW<lon FLOAT, rideTime TIMESTAMP>"
 ```
 
 ### programmatically
 
 ```
-.withFormat(Ltsv().schema("ROW(lon FLOAT, rideTime TIMESTAMP)"))
+.withFormat(Ltsv().schema("ROW<lon FLOAT, rideTime TIMESTAMP>"))
 ```
 
 ### License
