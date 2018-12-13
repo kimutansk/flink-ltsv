@@ -23,13 +23,12 @@ import collection.JavaConverters._
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.table.descriptors.{DescriptorProperties, FormatDescriptorValidator, SchemaValidator}
-import org.apache.flink.table.factories.{DeserializationSchemaFactory, SerializationSchemaFactory}
+import org.apache.flink.table.factories.{DeserializationSchemaFactory, SerializationSchemaFactory, TableFormatFactoryBase}
 import org.apache.flink.types.Row
 
 import scala.collection.JavaConverters
 
 object LtsvFormatFactory {
-  val REQURED_CONTEXT: Map[String, String] = Map(FormatDescriptorValidator.FORMAT_TYPE -> Ltsv.FORMAT_TYPE_VALUE, FormatDescriptorValidator.FORMAT_PROPERTY_VERSION -> "1")
   val SUPPORTED_PROPERTIES: Seq[String] = List.concat(Seq(Ltsv.FORMAT_SCHEMA, Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA, Ltsv.FORMAT_TIMESTAMP_FORMAT),
     JavaConverters.asScalaIteratorConverter(SchemaValidator.getSchemaDerivationKeys.iterator()).asScala.toSeq)
 
@@ -57,7 +56,7 @@ object LtsvFormatFactory {
     if (!descriptorProperties.getOptionalString(Ltsv.FORMAT_SCHEMA).orElse("").isEmpty) {
       descriptorProperties.getType(Ltsv.FORMAT_SCHEMA).asInstanceOf[TypeInformation[Row]]
     } else {
-      SchemaValidator.deriveFormatFields(descriptorProperties).toRowType
+      TableFormatFactoryBase.deriveSchema(descriptorProperties.asMap).toRowType
     }
   }
 }
@@ -65,17 +64,11 @@ object LtsvFormatFactory {
 /**
   * Table format factory for providing configured instances of Ltsv-to-row SerializationSchema and DeserializationSchema.
   */
-class LtsvFormatFactory extends SerializationSchemaFactory[Row] with DeserializationSchemaFactory[Row] {
+class LtsvFormatFactory extends TableFormatFactoryBase[Row](Ltsv.FORMAT_TYPE_VALUE, 1, true) with SerializationSchemaFactory[Row] with DeserializationSchemaFactory[Row] {
 
-  override def requiredContext(): util.Map[String, String] = {
-    LtsvFormatFactory.REQURED_CONTEXT.asJava
-  }
-
-  override def supportedProperties(): util.List[String] = {
+  override def supportedFormatProperties(): util.List[String] = {
     LtsvFormatFactory.SUPPORTED_PROPERTIES.asJava
   }
-
-  override def supportsSchemaDerivation(): Boolean = true
 
   override def createSerializationSchema(properties: util.Map[String, String]): SerializationSchema[Row] = {
     val descriptorProperties = LtsvFormatFactory.convertToDescriptorProperties(properties.asScala.toMap)

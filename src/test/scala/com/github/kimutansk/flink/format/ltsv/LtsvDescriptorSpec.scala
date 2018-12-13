@@ -19,7 +19,7 @@ package com.github.kimutansk.flink.format.ltsv
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.table.descriptors.{DescriptorProperties, FormatDescriptorValidator}
-import org.apache.flink.table.typeutils.TypeStringUtils
+import org.apache.flink.table.utils.TypeStringUtils
 import org.apache.flink.types.Row
 import org.scalatest.{FlatSpec, Matchers, PrivateMethodTester}
 
@@ -33,63 +33,67 @@ class LtsvDescriptorSpec extends FlatSpec with PrivateMethodTester with Matchers
       val addFormatProperties = PrivateMethod[Unit]('addFormatProperties)
     }
 
-  "addFormatProperties" should "initial applied config" in {
+  "toFormatProperties" should "initial applied config" in {
     // prepare
     val f = fixture
     val target = Ltsv()
 
     // execute
-    target invokePrivate f.addFormatProperties(f.descriptorProperties)
+    val result = target.toFormatProperties
 
     // verify
+    f.descriptorProperties.putProperties(result)
     f.descriptorProperties.getBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA) should be(false)
     f.descriptorProperties.getBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD) should be(false)
     f.descriptorProperties.getString(Ltsv.FORMAT_SCHEMA) should be("")
     f.descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT) should be(Ltsv.DEFAULT_TIMESTAMP_FORMAT)
   }
 
-  "addFormatProperties" should "boolean set method applied config" in {
+  "toFormatProperties" should "boolean set method applied config" in {
     // prepare
     val f = fixture
     val target = Ltsv().driveSchema().failOnMissingField()
 
     // execute
-    target invokePrivate f.addFormatProperties(f.descriptorProperties)
+    val result = target.toFormatProperties
 
     // verify
+    f.descriptorProperties.putProperties(result)
     f.descriptorProperties.getBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA) should be(true)
     f.descriptorProperties.getBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD) should be(true)
     f.descriptorProperties.getString(Ltsv.FORMAT_SCHEMA) should be("")
     f.descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT) should be(Ltsv.DEFAULT_TIMESTAMP_FORMAT)
   }
 
-  "addFormatProperties" should "string set method applied config" in {
+  "toFormatProperties" should "string set method applied config" in {
     // prepare
     val f = fixture
-    val target = Ltsv().schema("ROW(temperature FLOAT)").timestampFormat("TestFormat")
+    val target = Ltsv().schema("ROW<temperature FLOAT>").timestampFormat("TestFormat")
 
     // execute
-    target invokePrivate f.addFormatProperties(f.descriptorProperties)
+    val result = target.toFormatProperties
 
     // verify
+    f.descriptorProperties.putProperties(result)
     f.descriptorProperties.getBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA) should be(false)
     f.descriptorProperties.getBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD) should be(false)
-    f.descriptorProperties.getString(Ltsv.FORMAT_SCHEMA) should be("ROW(temperature FLOAT)")
+    f.descriptorProperties.getString(Ltsv.FORMAT_SCHEMA) should be("ROW<temperature FLOAT>")
     f.descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT) should be("TestFormat")
   }
 
-  "addFormatProperties" should "TypeInformation set method applied config" in {
+  "toFormatProperties" should "TypeInformation set method applied config" in {
     // prepare
     val f = fixture
-    val target = Ltsv().schema(TypeStringUtils.readTypeInfo("ROW(a BOOLEAN, b STRING)").asInstanceOf[TypeInformation[Row]])
+    val target = Ltsv().schema(TypeStringUtils.readTypeInfo("ROW<a BOOLEAN, b STRING>").asInstanceOf[TypeInformation[Row]])
 
     // execute
-    target invokePrivate f.addFormatProperties(f.descriptorProperties)
+    val result = target.toFormatProperties
 
     // verify
+    f.descriptorProperties.putProperties(result)
     f.descriptorProperties.getBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA) should be(false)
     f.descriptorProperties.getBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD) should be(false)
-    f.descriptorProperties.getString(Ltsv.FORMAT_SCHEMA) should be("ROW(a BOOLEAN, b VARCHAR)")
+    f.descriptorProperties.getString(Ltsv.FORMAT_SCHEMA) should be("ROW<a BOOLEAN, b VARCHAR>")
     f.descriptorProperties.getString(Ltsv.FORMAT_TIMESTAMP_FORMAT) should be(Ltsv.DEFAULT_TIMESTAMP_FORMAT)
   }
 }

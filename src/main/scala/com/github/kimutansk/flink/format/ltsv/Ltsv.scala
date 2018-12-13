@@ -19,7 +19,7 @@ package com.github.kimutansk.flink.format.ltsv
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.table.descriptors.{DescriptorProperties, FormatDescriptor, FormatDescriptorValidator}
-import org.apache.flink.table.typeutils.TypeStringUtils
+import org.apache.flink.table.utils.TypeStringUtils
 import org.apache.flink.types.Row
 import org.apache.flink.util.Preconditions
 
@@ -54,7 +54,7 @@ case class LtsvConf(driveSchema: Boolean = false, failOnMissingField: Boolean = 
   *
   * @param conf Configuration
   */
-class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, version = 1) {
+class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, 1) {
 
   /**
     * Create driveSchema=true configured Ltsv format descriptor.
@@ -107,10 +107,12 @@ class Ltsv(conf: LtsvConf) extends FormatDescriptor(Ltsv.FORMAT_TYPE_VALUE, vers
     Ltsv(LtsvConf(conf.driveSchema, conf.failOnMissingField, conf.schema, timestampFormat))
   }
 
-  override protected def addFormatProperties(properties: DescriptorProperties): Unit = {
+  override def toFormatProperties(): java.util.Map[String, String] = {
+    val properties = new DescriptorProperties
     properties.putBoolean(FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA, conf.driveSchema)
     properties.putBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, conf.failOnMissingField)
     properties.putString(Ltsv.FORMAT_SCHEMA, conf.schema)
     properties.putString(Ltsv.FORMAT_TIMESTAMP_FORMAT, conf.timestampFormat)
+    properties.asMap()
   }
 }

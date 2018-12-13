@@ -33,7 +33,7 @@ class LtsvFormatFactorySpec extends FlatSpec {
   "createSerializationSchema" should "drived schema setting passed" in {
     // prepare
     val f = fixture
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(temperature FLOAT)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<temperature FLOAT>")
 
     // execute
     f.factory.createSerializationSchema(f.descriptorProperties.asMap)
@@ -45,7 +45,7 @@ class LtsvFormatFactorySpec extends FlatSpec {
   "createDeserializationSchema" should "drived schema setting passed" in {
     // prepare
     val f = fixture
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(temperature FLOAT)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<temperature FLOAT>")
 
     // execute
     f.factory.createDeserializationSchema(f.descriptorProperties.asMap)

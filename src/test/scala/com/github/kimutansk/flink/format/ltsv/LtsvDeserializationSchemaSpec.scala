@@ -36,7 +36,7 @@ class LtsvDeserializationSchemaSpec extends FlatSpec with Matchers {
   "deserialize" should "deserialized base pattern" in {
     // prepare
     val f = fixture
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(temperature FLOAT, whc FLOAT, humidity FLOAT, ph FLOAT, id STRING, time TIMESTAMP)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<temperature FLOAT, whc FLOAT, humidity FLOAT, ph FLOAT, id STRING, time TIMESTAMP>")
     val deserializationSchema = f.factory.createDeserializationSchema(f.descriptorProperties.asMap)
     val input = "temperature:21.0\twhc:24.6\thumidity:85.0\tph:6.3\tid:sensor_01\ttime:2018-08-28T19:38:01+09:00".getBytes(StandardCharsets.UTF_8)
 
@@ -54,7 +54,7 @@ class LtsvDeserializationSchemaSpec extends FlatSpec with Matchers {
   "deserialize" should "when column does not exists, throw IllegalStateException" in {
     // prepare
     val f = fixture
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(temperature FLOAT, whc FLOAT, humidity FLOAT, ph FLOAT, id STRING, time TIMESTAMP)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<temperature FLOAT, whc FLOAT, humidity FLOAT, ph FLOAT, id STRING, time TIMESTAMP>")
     f.descriptorProperties.putBoolean(Ltsv.FORMAT_FAIL_ON_MISSING_FIELD, true)
     val deserializationSchema = f.factory.createDeserializationSchema(f.descriptorProperties.asMap)
     val input = "temperature:21.0\twhc:24.6\thumidity:85.0\tph:6.3\ttime:2018-08-28T19:38:01+09:00".getBytes(StandardCharsets.UTF_8)
@@ -69,7 +69,7 @@ class LtsvDeserializationSchemaSpec extends FlatSpec with Matchers {
     // prepare
     val f = fixture
     f.descriptorProperties.putString(Ltsv.FORMAT_TIMESTAMP_FORMAT, "yyyy-MM-dd HH:mm:ssXXX")
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(testtimestamp TIMESTAMP, testdate DATE, testtime TIME)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<testtimestamp TIMESTAMP, testdate DATE, testtime TIME>")
     val deserializationSchema = f.factory.createDeserializationSchema(f.descriptorProperties.asMap)
     val input = "testtimestamp:2018-08-28 19:38:01+09:00\ttestdate:2018-08-28\ttesttime:19:38:01".getBytes(StandardCharsets.UTF_8)
 
@@ -87,7 +87,7 @@ class LtsvDeserializationSchemaSpec extends FlatSpec with Matchers {
   "deserialize" should "deserialize number columns part1" in {
     // prepare
     val f = fixture
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(a BOOLEAN, b BYTE, c SHORT, d INT, e LONG, f FLOAT, g DOUBLE, h DECIMAL)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<a BOOLEAN, b BYTE, c SHORT, d INT, e LONG, f FLOAT, g DOUBLE, h DECIMAL>")
     val deserializationSchema = f.factory.createDeserializationSchema(f.descriptorProperties.asMap)
     val input = "a:true\tb:2\tc:3\td:4\te:5\tf:6\tg:7\th:8.008".getBytes(StandardCharsets.UTF_8)
 

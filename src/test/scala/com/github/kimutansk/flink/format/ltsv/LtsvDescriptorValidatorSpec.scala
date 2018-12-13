@@ -58,7 +58,7 @@ class LtsvDescriptorValidatorSpec extends FlatSpec {
   "validate" should "schema setting passed" in {
     // prepare
     val f = fixture
-    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW(temperature FLOAT)")
+    f.descriptorProperties.putString(Ltsv.FORMAT_SCHEMA, "ROW<temperature FLOAT>")
 
     // execute
     f.validator.validate(f.descriptorProperties)
