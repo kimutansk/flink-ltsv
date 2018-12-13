@@ -5,7 +5,7 @@ name := "flink-ltsv"
 // Follow Flink's scala version
 scalaVersion := "2.11.12"
 val flinkVersion = "1.7.0"
-version:= "0.1.0_flink" + flinkVersion
+version:= "0.1.1_flink" + flinkVersion
 
 resolvers += "Maven Central" at "http://central.maven.org/"
 
